@@ -1,5 +1,5 @@
-CREATE TABLE IF NOT EXISTS `raw_github.events` (
-    events_date DATE,
+CREATE TABLE IF NOT EXISTS `${RAW_DATASET}.events` (
+    event_date DATE,
     created_at TIMESTAMP,
     type STRING,
     repo_name STRING,
