@@ -29,6 +29,8 @@ class BQQueryRunner:
             .replace("${STG_DATASET}", self.settings.stg_dataset)
             .replace("${MART_DATASET}", self.settings.mart_dataset)
             .replace("${GCP_PROJECT_ID}", self.settings.gcp_project_id)
+            .replace("${LOOKBACK_DAYS}", str(self.settings.lookback_days))
+            .replace("${MIN_EVENTS_THRESHOLD}", str(self.settings.min_events_threshold))
         )
     
     def run(self, sql: str, job_config: Optional[bigquery.QueryJobConfig] = None) -> QueryResult:
