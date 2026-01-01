@@ -50,7 +50,7 @@ def main() -> None:
         
         print(f"\nRunning: {sql_file.relative_to(SQL_ROOT)}")
         res = bq_runner.run(sql)
-        print(f"job_id={res.job_id} processed={res.bytes_processed} billed={res.bytes_billed}")
+        print(f"\nCompleted: {sql_file.relative_to(SQL_ROOT)}")
 
 
 
