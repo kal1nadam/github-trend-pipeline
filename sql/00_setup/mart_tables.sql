@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS `${MART_DATASET}.alerts_daily` (
     growth_events_ratio FLOAT64,
     events_today INT64,
     actors_today INT64,
-    stars_today INT64
+    stars_today INT64,
     primary_language STRING,
     created_at TIMESTAMP
 )

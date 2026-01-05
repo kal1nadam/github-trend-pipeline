@@ -29,6 +29,14 @@ class Settings:
     lookback_days: int
     min_events_threshold: int
 
+    # Alerts
+    alert_z_threshold_low: float
+    alert_growth_threshold_low: float
+    max_repo_alerts: int
+    max_language_alerts: int
+
+    # TODO summary tops
+
     @staticmethod
     def load() -> Settings:
         return Settings(
@@ -45,4 +53,9 @@ class Settings:
 
             lookback_days=int(_opt("LOOKBACK_DAYS", "14")),
             min_events_threshold=int(_opt("MIN_EVENTS_THRESHOLD", "50")),
+
+            alert_z_threshold_low=float(_opt("ALERT_Z_THRESHOLD_LOW", "3")),
+            alert_growth_threshold_low=float(_opt("ALERT_GROWTH_THRESHOLD_LOW", "3")),
+            max_repo_alerts=int(_opt("MAX_REPO_ALERTS", "50")),
+            max_language_alerts=int(_opt("MAX_LANGUAGE_ALERTS", "20")),
         )
