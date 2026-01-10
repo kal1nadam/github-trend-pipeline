@@ -19,4 +19,7 @@ transform:
 compute:
 	python -m pipeline.compute --date $(DATE)
 
+serve:
+	uvicorn pipeline.serve:app --reload --port 8000
+
 run: setup extract transform compute

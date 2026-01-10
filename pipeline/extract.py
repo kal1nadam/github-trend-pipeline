@@ -11,6 +11,7 @@ from pipeline.bq import BQQueryRunner
 def yyyymmdd(d: date) -> str:
     return d.strftime("%Y%m%d")
 
+# Query hard coded as it is part of the application logic
 EXTRACT_SQL = """
 -- Extract a single day from GH Archive into the raw table.
 DECLARE target_date DATE DEFAULT DATE("${DATE}");
