@@ -7,7 +7,7 @@ from pipeline.config import Settings
 from pipeline.bq import BQQueryRunner
 
 SQL_ROOT = Path(__file__).resolve().parents[1] / "sql"
-ORDERED_DIRS = ["00_setup", "10_staging", "20_models", "30_marts"]
+ORDERED_DIRS = ["10_staging", "20_models", "30_marts"]
 
 def iter_sql_files() -> list[Path]:
     files: list[Path] = []

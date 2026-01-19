@@ -7,7 +7,7 @@ export
 DATE ?= $(shell date -u -d "yesterday" +%Y-%m-%d)
 
 setup:
-	python -m pipeline.transform --dry-run
+	python -m pipeline.setup
 # 	python -m pipeline.transform
 
 extract:
