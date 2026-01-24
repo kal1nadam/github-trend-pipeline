@@ -22,4 +22,8 @@ compute:
 serve:
 	uvicorn pipeline.serve:app --reload --port 8000
 
+smoke:
+	python -c "from pipeline.config import Settings; Settings.load(); print('Config OK')"
+
 run: setup extract transform compute
+	@echo "Pipeline run completed for date: $(DATE)"
