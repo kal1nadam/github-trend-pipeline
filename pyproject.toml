@@ -1,0 +1,20 @@
+[project]
+name = "github-trend-pipeline"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "kal1nadam",email = "kalinaadam75@seznam.cz"}
+]
+package-mode = false
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "google-cloud-bigquery (>=3.40.0,<4.0.0)",
+    "fastapi (>=0.128.0,<0.129.0)",
+    "uvicorn (>=0.40.0,<0.41.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
