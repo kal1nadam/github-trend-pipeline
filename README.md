@@ -26,12 +26,12 @@ exposes the results through a **FastAPI** REST service.
 
 ## Overview
 
-The pipeline runs daily and produces three mart tables:
+The pipeline runs daily and produces five mart tables consumed by the REST API:
 
 | Table | Description |
 |-------|-------------|
 | `mart_github.trending_repos_daily` | Z-score and trend signals per repo/day |
-| `mart_github.trending_repos_enriched` | Trending repos enriched with language + license |
+| `mart_github.trending_repos_enriched` | Trending repos with language + license metadata |
 | `mart_github.trending_languages_daily` | Aggregated trend metrics per language/day |
 | `mart_github.alerts_daily` | Repo and language alerts with severity levels |
 | `mart_github.daily_summary` | One-row daily digest with top repos and languages |
@@ -112,12 +112,21 @@ See [`docs/data_model.md`](docs/data_model.md) for complete table schemas.
 │   ├── 20_models/          # Aggregation + dimension SQL
 │   └── 30_marts/           # Trend scoring + enrichment SQL
 │
-├── tests/                  # Unit tests (pytest)
+├── tests/                  # Unit tests (pytest) — no GCP credentials needed
+│   ├── test_config.py
+│   ├── test_bq.py
+│   ├── test_extract.py
+│   ├── test_api_models.py
+│   ├── test_serve.py
+│   ├── test_placeholder.py # transform.py tests
+│   ├── test_compute.py
+│   └── test_run_daily.py
+│
 ├── docs/
 │   ├── architecture.mmd    # Mermaid architecture diagram
 │   └── data_model.md       # Table schemas and field descriptions
 │
-├── .github/workflows/ci.yml  # Lint + test CI
+├── .github/workflows/ci.yml  # Lint + format + test CI (runs on every push)
 ├── Dockerfile.job          # Batch pipeline image
 ├── Dockerfile.api          # FastAPI service image
 └── pyproject.toml          # Poetry project + tool config
@@ -158,7 +167,7 @@ Copy `.env.docker` and fill in your values:
 
 ```bash
 cp .env.docker .env
-# edit .env with your GCP_PROJECT_ID etc.
+# edit .env — set GCP_PROJECT_ID at minimum
 ```
 
 ### 4. Initialize BigQuery datasets and tables
@@ -256,7 +265,7 @@ docker run --rm -p 8080:8080 \
 
 Then open `http://localhost:8080/docs`.
 
-> **Cloud Run**: Use the same images. Attach a service account instead of mounting a key file.
+> **Cloud Run:** Use the same images. Attach a service account instead of mounting a key file.
 > Schedule the job image with Cloud Scheduler for daily execution.
 
 ---
@@ -327,17 +336,20 @@ poetry install --with dev
 poetry run pytest tests/ -v
 ```
 
-### Lint
+Tests mock the BigQuery client — no GCP credentials are needed to run the test suite.
+
+### Lint and format
 
 ```bash
-poetry run ruff check .
+poetry run ruff check .        # style + import checks
+poetry run ruff format --check . # formatting check
+poetry run ruff format .       # apply formatting
 ```
-
-Tests mock the BigQuery client — no GCP credentials are needed to run the test suite.
 
 ### CI
 
-GitHub Actions runs `ruff check` and `pytest` on every push. See [`.github/workflows/ci.yml`](.github/workflows/ci.yml).
+GitHub Actions runs lint, format, and tests on every push.
+See [`.github/workflows/ci.yml`](.github/workflows/ci.yml).
 
 ---
 
