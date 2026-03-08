@@ -1,4 +1,5 @@
 """Tests for pipeline.api_models — Pydantic response models."""
+
 from __future__ import annotations
 
 import pytest

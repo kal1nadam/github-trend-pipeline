@@ -5,11 +5,13 @@ from datetime import date
 
 from google.cloud import bigquery
 
-from pipeline.config import Settings
 from pipeline.bq import BQQueryRunner
+from pipeline.config import Settings
+
 
 def yyyymmdd(d: date) -> str:
     return d.strftime("%Y%m%d")
+
 
 # Query hard coded as it is part of the application logic
 EXTRACT_SQL = """
@@ -28,6 +30,7 @@ FROM `${SOURCE_PROJECT}.${SOURCE_DATASET}.${SOURCE_TABLE}`
 WHERE DATE(created_at) = target_date;
 """
 
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--date", required=True, help="YYYY-MM-DD (UTC)")
@@ -40,18 +43,24 @@ def main() -> None:
     # Target github archive table
     src_table = yyyymmdd(d)
 
-    sql = (EXTRACT_SQL
-           .replace("${DATE}", args.date)
-           .replace("${SOURCE_PROJECT}", settings.source_events_project)
-           .replace("${SOURCE_DATASET}", settings.source_events_dataset)
-           .replace("${SOURCE_TABLE}", src_table))
-    
-    # User job config with labels - helps with cost tracking
-    job_config = bigquery.QueryJobConfig(labels={"project": "github-trend-pipeline", "step": "extract"})
+    sql = (
+        EXTRACT_SQL.replace("${DATE}", args.date)
+        .replace("${SOURCE_PROJECT}", settings.source_events_project)
+        .replace("${SOURCE_DATASET}", settings.source_events_dataset)
+        .replace("${SOURCE_TABLE}", src_table)
+    )
 
-    print(f"Extracting {args.date} from `githubarchive.day.{src_table}` into `{settings.raw_dataset}.events` ...")
+    # User job config with labels - helps with cost tracking
+    job_config = bigquery.QueryJobConfig(
+        labels={"project": "github-trend-pipeline", "step": "extract"}
+    )
+
+    print(
+        f"Extracting {args.date} from `githubarchive.day.{src_table}` into `{settings.raw_dataset}.events` ..."
+    )
     res = bq_runner.run(sql, job_config=job_config)
     print(f"Done. job_id={res.job_id} processed={res.bytes_processed} billed={res.bytes_billed}")
+
 
 if __name__ == "__main__":
     main()

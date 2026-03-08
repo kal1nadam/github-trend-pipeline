@@ -1,7 +1,6 @@
 """Shared fixtures and configuration for the test suite."""
-from __future__ import annotations
 
-import os
+from __future__ import annotations
 
 import pytest
 

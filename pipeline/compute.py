@@ -1,12 +1,11 @@
 from __future__ import annotations
 
 import argparse
-from datetime import datetime, timezone, date
 
 from google.cloud import bigquery
 
-from pipeline.config import Settings
 from pipeline.bq import BQQueryRunner
+from pipeline.config import Settings
 
 ALERTS_INSERT_SQL = """
 -- Insert alerts for a given day
@@ -112,6 +111,7 @@ SELECT
 FROM stats, top_repos, top_langs;
 """
 
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--date", required=True, help="YYYY-MM-DD (UTC)")
@@ -120,7 +120,6 @@ def main() -> None:
     settings = Settings.load()
     bq = BQQueryRunner(settings)
 
-
     # clean existing rows for this date
     cleanup_sql = f"""
     DELETE FROM `{settings.mart_dataset}.alerts_daily` WHERE event_date = DATE("{args.date}");
@@ -128,17 +127,31 @@ def main() -> None:
     """
 
     print(f"Cleaning up existing alerts for date {args.date} ...")
-    bq.run(cleanup_sql, job_config=bigquery.QueryJobConfig(labels={"step": "compute_alerts_cleanup"}))
+    bq.run(
+        cleanup_sql, job_config=bigquery.QueryJobConfig(labels={"step": "compute_alerts_cleanup"})
+    )
 
     print(f"Inserting repo alerts for date {args.date} ...")
-    bq.run(ALERTS_INSERT_SQL, extra={"DATE": args.date}, job_config=bigquery.QueryJobConfig(labels={"step": "compute_repo_alerts"}))
+    bq.run(
+        ALERTS_INSERT_SQL,
+        extra={"DATE": args.date},
+        job_config=bigquery.QueryJobConfig(labels={"step": "compute_repo_alerts"}),
+    )
 
     print(f"Inserting language alerts for date {args.date} ...")
-    bq.run(LANG_ALERTS_INSERT_SQL, extra={"DATE": args.date}, job_config=bigquery.QueryJobConfig(labels={"step": "compute_language_alerts"}))
+    bq.run(
+        LANG_ALERTS_INSERT_SQL,
+        extra={"DATE": args.date},
+        job_config=bigquery.QueryJobConfig(labels={"step": "compute_language_alerts"}),
+    )
 
     print(f"Inserting daily summary for date {args.date} ...")
-    bq.run(SUMMARY_INSERT_SQL, extra={"DATE": args.date}, job_config=bigquery.QueryJobConfig(labels={"step": "compute_daily_summary"}))
-    
+    bq.run(
+        SUMMARY_INSERT_SQL,
+        extra={"DATE": args.date},
+        job_config=bigquery.QueryJobConfig(labels={"step": "compute_daily_summary"}),
+    )
+
     print("Compute done.")
 
 

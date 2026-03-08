@@ -1,13 +1,12 @@
 from __future__ import annotations
 
-import os
 from typing import List, Optional
 
 from fastapi import FastAPI, Query
 from google.cloud import bigquery
 
+from pipeline.api_models import AlertItem, DailySummary, TrendingLanguage, TrendingRepo
 from pipeline.config import Settings
-from pipeline.api_models import TrendingRepo, TrendingLanguage, AlertItem, DailySummary
 
 app = FastAPI(
     title="GitHub Trend Pipeline API",
@@ -20,20 +19,23 @@ bq_client = bigquery.Client(project=settings.gcp_project_id, location=settings.b
 
 MART_DATASET = settings.mart_dataset
 
+
 def _run_query(sql: str, params: list[bigquery.ScalarQueryParameter]) -> list[dict]:
     job_config = bigquery.QueryJobConfig(query_parameters=params)
     rows = bq_client.query(sql, job_config=job_config).result()
     return [dict(row) for row in rows]
 
+
 @app.get("/health")
 def health():
     return {"status": "ok", "project": settings.gcp_project_id, "mart_dataset": MART_DATASET}
+
 
 @app.get("/trending/repos", response_model=List[TrendingRepo])
 def trending_repos(
     date: str = Query(..., description="YYYY-MM-DD"),
     limit: int = Query(50, ge=1, le=200),
-    language: Optional[str] = Query(None, description="Filter by primary_language")
+    language: Optional[str] = Query(None, description="Filter by primary_language"),
 ):
     sql = f"""
     SELECT
@@ -60,10 +62,10 @@ def trending_repos(
     ]
     return _run_query(sql, params)
 
+
 @app.get("/trending/languages", response_model=List[TrendingLanguage])
 def trending_languages(
-    date: str = Query(..., description="YYYY-MM-DD"),
-    limit: int = Query(20, ge=1, le=200)
+    date: str = Query(..., description="YYYY-MM-DD"), limit: int = Query(20, ge=1, le=200)
 ):
     sql = f"""
     SELECT
@@ -87,12 +89,13 @@ def trending_languages(
     ]
     return _run_query(sql, params)
 
+
 @app.get("/alerts", response_model=List[AlertItem])
 def alerts(
     date: str = Query(..., description="YYYY-MM-DD"),
     alert_type: Optional[str] = Query(None, description="repo|language"),
     severity: Optional[str] = Query(None, description="low|medium|high"),
-    limit: int = Query(100, ge=1, le=500)
+    limit: int = Query(100, ge=1, le=500),
 ):
     sql = f"""
     SELECT
@@ -129,6 +132,7 @@ def alerts(
         bigquery.ScalarQueryParameter("limit", "INT64", limit),
     ]
     return _run_query(sql, params)
+
 
 @app.get("/summary", response_model=Optional[DailySummary])
 def summary(date: str = Query(..., description="YYYY-MM-DD")):

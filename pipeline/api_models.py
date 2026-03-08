@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import Any, Optional
+
 from pydantic import BaseModel
 
 
@@ -16,6 +17,7 @@ class TrendingRepo(BaseModel):
     z_events: Optional[float] = None
     trend_score: float
 
+
 class TrendingLanguage(BaseModel):
     event_date: str
     primary_language: str
@@ -26,6 +28,7 @@ class TrendingLanguage(BaseModel):
     avg_trend_score: float
     total_trend_score: float
     top_repos: Any
+
 
 class AlertItem(BaseModel):
     event_date: str
@@ -40,6 +43,7 @@ class AlertItem(BaseModel):
     stars_today: Optional[int] = None
     primary_language: Optional[str] = None
     created_at: str
+
 
 class DailySummary(BaseModel):
     event_date: str

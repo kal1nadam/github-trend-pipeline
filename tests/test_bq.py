@@ -1,7 +1,8 @@
 """Tests for pipeline.bq — SQL rendering logic (no BigQuery connection required)."""
+
 from __future__ import annotations
 
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 
@@ -117,7 +118,9 @@ class TestRenderSql:
         with patch("google.cloud.bigquery.Client"):
             from pipeline.bq import BQQueryRunner
 
-            runner = BQQueryRunner(_make_settings(raw_dataset="custom_raw", mart_dataset="custom_mart"))
+            runner = BQQueryRunner(
+                _make_settings(raw_dataset="custom_raw", mart_dataset="custom_mart")
+            )
         rendered = runner.render_sql("${RAW_DATASET} and ${MART_DATASET}")
         assert "custom_raw" in rendered
         assert "custom_mart" in rendered

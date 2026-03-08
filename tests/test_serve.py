@@ -1,8 +1,9 @@
 """Tests for pipeline.serve — FastAPI endpoints (BigQuery is mocked)."""
+
 from __future__ import annotations
 
 import os
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 
@@ -15,6 +16,7 @@ def client():
     """FastAPI TestClient with BigQuery mocked at import time."""
     with patch("google.cloud.bigquery.Client"):
         from fastapi.testclient import TestClient
+
         from pipeline.serve import app
 
         return TestClient(app)

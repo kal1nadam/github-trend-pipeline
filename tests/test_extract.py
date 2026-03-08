@@ -1,4 +1,5 @@
 """Tests for pipeline.extract — date utilities."""
+
 from __future__ import annotations
 
 from datetime import date

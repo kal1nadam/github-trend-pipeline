@@ -1,12 +1,14 @@
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
 import subprocess
 import sys
+from datetime import datetime, timedelta, timezone
+
 
 def yesterday_utc_iso() -> str:
     d = datetime.now(timezone.utc).date() - timedelta(days=1)
     return d.isoformat()
+
 
 def main() -> None:
     date_str = yesterday_utc_iso()
@@ -23,6 +25,7 @@ def main() -> None:
         subprocess.run(cmd, check=True)
 
     print("\nDaily pipeline run completed.")
+
 
 if __name__ == "__main__":
     main()
