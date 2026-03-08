@@ -211,3 +211,6 @@ __marimo__/
 
 # Local outputs
 samples/out/
+# Claude Code local state
+.claude/
+.claire/

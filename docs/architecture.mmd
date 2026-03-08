@@ -1,0 +1,59 @@
+flowchart TD
+    %% ── External sources ──────────────────────────────────────────
+    GHA["githubarchive.day\nYYYYMMDD"]
+    BQPL["bigquery-public-data\ngithub_repos.languages"]
+    BQPC["bigquery-public-data\ngithub_repos.licenses"]
+
+    %% ── Raw layer ─────────────────────────────────────────────────
+    RAW["raw_github.events\n(partitioned by event_date)"]
+
+    %% ── Staging layer ─────────────────────────────────────────────
+    STG["stg_github.stg_github_events\n(cleaned + filtered)"]
+
+    %% ── Model layer ───────────────────────────────────────────────
+    ACT["stg_github.daily_repo_activity\n(aggregated metrics per repo/day)"]
+    DIM["stg_github.repo_dim\n(language + license metadata)"]
+
+    %% ── Mart layer ────────────────────────────────────────────────
+    TREND["mart_github.trending_repos_daily\n(z-scores + trend_score)"]
+    ENRICH["mart_github.trending_repos_enriched\n(trend + metadata joined)"]
+    LANG["mart_github.trending_languages_daily\n(aggregated per language)"]
+    ALERTS["mart_github.alerts_daily\n(repo & language alerts)"]
+    SUMMARY["mart_github.daily_summary\n(one row per day)"]
+
+    %% ── API ───────────────────────────────────────────────────────
+    API["FastAPI\npipeline/serve.py"]
+
+    %% ── Pipeline steps ────────────────────────────────────────────
+    GHA -->|"extract.py\n--date YYYY-MM-DD"| RAW
+    RAW -->|"SQL: 10_staging"| STG
+    STG -->|"SQL: 20_models/daily_repo_activity"| ACT
+    BQPL -->|"SQL: 20_models/repo_dim"| DIM
+    BQPC -->|"SQL: 20_models/repo_dim"| DIM
+    ACT -->|"SQL: 30_marts/trending_repos_daily"| TREND
+    TREND -->|"SQL: 30_marts/trending_repos_enriched"| ENRICH
+    DIM   -->|"SQL: 30_marts/trending_repos_enriched"| ENRICH
+    ENRICH -->|"SQL: 30_marts/trending_languages_daily"| LANG
+    ENRICH -->|"compute.py"| ALERTS
+    LANG   -->|"compute.py"| ALERTS
+    ENRICH -->|"compute.py"| SUMMARY
+    LANG   -->|"compute.py"| SUMMARY
+
+    %% ── Serving ───────────────────────────────────────────────────
+    ENRICH -->|"GET /trending/repos"| API
+    LANG   -->|"GET /trending/languages"| API
+    ALERTS -->|"GET /alerts"| API
+    SUMMARY -->|"GET /summary"| API
+
+    %% ── Styles ────────────────────────────────────────────────────
+    classDef source  fill:#dbeafe,stroke:#3b82f6,color:#1e3a5f
+    classDef raw     fill:#fef9c3,stroke:#ca8a04,color:#3b2100
+    classDef staging fill:#dcfce7,stroke:#16a34a,color:#14532d
+    classDef mart    fill:#f3e8ff,stroke:#9333ea,color:#3b0764
+    classDef api     fill:#ffe4e6,stroke:#e11d48,color:#4c0519
+
+    class GHA,BQPL,BQPC source
+    class RAW raw
+    class STG,ACT,DIM staging
+    class TREND,ENRICH,LANG,ALERTS,SUMMARY mart
+    class API api
